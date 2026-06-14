@@ -1,5 +1,4 @@
 using Moq;
-using WilliamsF1.Application.DTO;
 using WilliamsF1.Application.Interface;
 using WilliamsF1.Application.Services;
 using WilliamsF1.Domain.Models;
@@ -92,6 +91,45 @@ public class DriverSummaryServiceTests
     }
 
     [Fact]
+    public async Task GetDriverSummariesAsync_CountsRaceEntriesForIncompletedRaces()
+    {
+        // Arrange
+        var drivers = new List<Driver>
+        {
+            new(1, "lewis_hamilton", "44", "HAM", "Lewis", "Hamilton", new DateOnly(1985, 1, 7), "British"),
+            new(2, "jenson_button", "1", "BUT", "Jenson", "Button", new DateOnly(1985, 1, 7), "British")
+        };
+
+        var lapTimes = new List<LapTime>
+        {
+            // Race 1: completed race with 45 laps max
+            new(1, 1, 45, 1, "1:23.456", 83456),  // Lewis finishes 1st (podium)
+            new(1, 2, 45, 2, "1:33.999", 94568),
+
+            // Race 2: 45 laps max, but Lewis DNF at lap 30
+            new(2, 1, 30, 1, "1:34.567", 94567),  // Lewis position 1st but only completed 30 laps - No podium to prove DNF registered correctly
+            new(2, 2, 45, 1, "1:33.999", 94568),
+        };
+
+        _driverRepositoryMock.Setup(r => r.GetAllAsync(It.IsAny<CancellationToken>()))
+            .ReturnsAsync(drivers);
+        _lapTimeRepositoryMock.Setup(r => r.StreamAllAsync(It.IsAny<CancellationToken>()))
+            .Returns(StreamLapTimes(lapTimes));
+
+        var service = new DriverSummaryService(
+            _driverRepositoryMock.Object,
+            _lapTimeRepositoryMock.Object);
+
+        // Act
+        var result = await service.GetDriverSummariesAsync();
+
+        // Assert
+        Assert.Equal(2, result.Count);
+        Assert.Equal(1, result[1].Podiums);  // Ensure that the podium count is correct for the completed race and that the DNF has been registered correctly
+        Assert.Equal(2, result[1].TotalRacesEntered);  // But both races are counted as entered
+    }
+
+    [Fact]
     public async Task GetDriverSummariesAsync_CountsPodiumsCorrectly()
     {
         // Arrange
@@ -147,7 +185,7 @@ public class DriverSummaryServiceTests
         {
             // Race 1: completed race with 45 laps max
             new(1, 1, 45, 1, "1:23.456", 83456),  // Lewis finishes 1st (podium)
-            new(2, 2, 45, 2, "1:33.999", 94568),
+            new(1, 2, 45, 2, "1:33.999", 94568),
 
             // Race 2: 45 laps max, but Lewis DNF at lap 30
             new(2, 1, 30, 1, "1:34.567", 94567),  // Lewis position 1st but only completed 30 laps - no podium
@@ -167,9 +205,9 @@ public class DriverSummaryServiceTests
         var result = await service.GetDriverSummariesAsync();
 
         // Assert
-        Assert.Single(result);
-        Assert.Equal(1, result[0].Podiums);  // Only the completed race counts as a podium
-        Assert.Equal(2, result[0].TotalRacesEntered);  // But both races are counted as entered
+        Assert.Equal(2, result.Count);
+        Assert.Equal(1, result[1].Podiums);  // Only the completed race counts as a podium
+        Assert.Equal(2, result[1].TotalRacesEntered);
     }
 
     [Fact]

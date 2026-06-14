@@ -5,7 +5,11 @@ using WilliamsF1.Application.Interface;
 using WilliamsF1.Application.Services;
 using WilliamsF1.Infrastructure.DI;
 
-var builder = Host.CreateApplicationBuilder(args);
+var builder = Host.CreateApplicationBuilder(new HostApplicationBuilderSettings
+{
+    Args = args,
+    ContentRootPath = AppContext.BaseDirectory
+});
 
 builder.Services
     .AddApplication()
@@ -58,11 +62,11 @@ static async Task HandleArgumentsAsync(IServiceProvider services, string[] args)
             break;
 
         default:
-            Console.WriteLine("Invalid command. Usage:");
-            Console.WriteLine("  dotnet run circuits                  - Show all circuit summaries");
-            Console.WriteLine("  dotnet run circuits <search-term>    - Search circuit summaries");
-            Console.WriteLine("  dotnet run drivers                   - Show all driver summaries");
-            Console.WriteLine("  dotnet run drivers <search-term>     - Search driver summaries");
+            Console.WriteLine("Invalid command. Valid commands are:");
+            Console.WriteLine("  circuits                  - Show all circuit summaries");
+            Console.WriteLine("  circuits <search-term>    - Search circuit summaries");
+            Console.WriteLine("  drivers                   - Show all driver summaries");
+            Console.WriteLine("  drivers <search-term>     - Search driver summaries");
             break;
     }
 }
@@ -145,10 +149,10 @@ static async Task ShowCircuitSummariesAsync(CircuitSummaryService service)
     foreach (var summary in summaries)
     {
         Console.WriteLine($"{summary.CircuitName} ({summary.Country})");
-        Console.WriteLine($"  Total races: {summary.TotalRaces}");
+        Console.WriteLine($"  Total races:  {summary.TotalRaces}");
         Console.WriteLine($"  Fastest lap*: {summary.FastestLapTime}");
-        Console.WriteLine($"  Driver:      {summary.FastestLapDriver}");
-        Console.WriteLine($"  Race year:   {summary.RaceYear}");
+        Console.WriteLine($"  Driver:       {summary.FastestLapDriver}");
+        Console.WriteLine($"  Race year:    {summary.RaceYear}");
         Console.WriteLine();
     }
 
@@ -178,10 +182,10 @@ static async Task SearchCircuitSummaryAsync(CircuitSummaryService service, strin
     {
         Console.WriteLine();
         Console.WriteLine($"{summary.CircuitName} ({summary.Country})");
-        Console.WriteLine($"  Total races: {summary.TotalRaces}");
+        Console.WriteLine($"  Total races:  {summary.TotalRaces}");
         Console.WriteLine($"  Fastest lap*: {summary.FastestLapTime}");
-        Console.WriteLine($"  Driver:      {summary.FastestLapDriver}");
-        Console.WriteLine($"  Race year:   {summary.RaceYear}");
+        Console.WriteLine($"  Driver:       {summary.FastestLapDriver}");
+        Console.WriteLine($"  Race year:    {summary.RaceYear}");
     }
 
     Console.WriteLine();
@@ -204,9 +208,9 @@ static async Task ShowDriverSummariesAsync(DriverSummaryService service)
     foreach (var summary in summaries)
     {
         Console.WriteLine(summary.DriverName);
-        Console.WriteLine($"  Nationality:   {summary.Nationality}");
+        Console.WriteLine($"  Nationality:    {summary.Nationality}");
         Console.WriteLine($"  Races entered*: {summary.TotalRacesEntered}");
-        Console.WriteLine($"  Podiums**:       {summary.Podiums}");
+        Console.WriteLine($"  Podiums**:      {summary.Podiums}");
         Console.WriteLine();
     }
     Console.WriteLine();
@@ -237,9 +241,9 @@ static async Task SearchDriverSummaryAsync(DriverSummaryService service, string?
 
         Console.WriteLine();
         Console.WriteLine(summary.DriverName);
-        Console.WriteLine($"  Nationality:   {summary.Nationality}");
+        Console.WriteLine($"  Nationality:    {summary.Nationality}");
         Console.WriteLine($"  Races entered*: {summary.TotalRacesEntered}");
-        Console.WriteLine($"  Podiums**:       {summary.Podiums}");
+        Console.WriteLine($"  Podiums**:      {summary.Podiums}");
     }
 
     Console.WriteLine();

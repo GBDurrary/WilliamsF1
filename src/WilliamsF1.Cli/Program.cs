@@ -13,8 +13,59 @@ builder.Services
 
 using var host = builder.Build();
 
-await DisplayStartupSummaryAsync(host.Services);
-await RunMenuAsync(host.Services);
+// Handle command-line arguments if provided
+if (args.Length > 0)
+{
+    await HandleArgumentsAsync(host.Services, args);
+}
+else
+{
+    await DisplayStartupSummaryAsync(host.Services);
+    await RunMenuAsync(host.Services);
+}
+
+
+static async Task HandleArgumentsAsync(IServiceProvider services, string[] args)
+{
+    var command = args[0].ToLowerInvariant();
+    var circuitSummaryService = services.GetRequiredService<CircuitSummaryService>();
+    var driverSummaryService = services.GetRequiredService<DriverSummaryService>();
+
+    switch (command)
+    {
+        case "circuits":
+            if (args.Length > 1)
+            {
+                var searchTerm = string.Join(" ", args.Skip(1));
+                await SearchCircuitSummaryAsync(circuitSummaryService, searchTerm);
+            }
+            else
+            {
+                await ShowCircuitSummariesAsync(circuitSummaryService);
+            }
+            break;
+
+        case "drivers":
+            if (args.Length > 1)
+            {
+                var searchTerm = string.Join(" ", args.Skip(1));
+                await SearchDriverSummaryAsync(driverSummaryService, searchTerm);
+            }
+            else
+            {
+                await ShowDriverSummariesAsync(driverSummaryService);
+            }
+            break;
+
+        default:
+            Console.WriteLine("Invalid command. Usage:");
+            Console.WriteLine("  dotnet run circuits                  - Show all circuit summaries");
+            Console.WriteLine("  dotnet run circuits <search-term>    - Search circuit summaries");
+            Console.WriteLine("  dotnet run drivers                   - Show all driver summaries");
+            Console.WriteLine("  dotnet run drivers <search-term>     - Search driver summaries");
+            break;
+    }
+}
 
 static async Task DisplayStartupSummaryAsync(IServiceProvider services)
 {
@@ -105,10 +156,9 @@ static async Task ShowCircuitSummariesAsync(CircuitSummaryService service)
     Console.WriteLine("* Within the available data");
 }
 
-static async Task SearchCircuitSummaryAsync(CircuitSummaryService service)
+static async Task SearchCircuitSummaryAsync(CircuitSummaryService service, string? searchTerm = null)
 {
-    Console.Write("Enter circuit search term: ");
-    var searchTerm = Console.ReadLine();
+    searchTerm ??= PromptForCircuitSearchTerm();
 
     if (string.IsNullOrWhiteSpace(searchTerm))
     {
@@ -138,6 +188,12 @@ static async Task SearchCircuitSummaryAsync(CircuitSummaryService service)
     Console.WriteLine("* Within the available data");
 }
 
+static string PromptForCircuitSearchTerm()
+{
+    Console.Write("Enter circuit search term: ");
+    return Console.ReadLine() ?? string.Empty;
+}
+
 static async Task ShowDriverSummariesAsync(DriverSummaryService service)
 {
     Console.WriteLine("Calculating driver summaries...");
@@ -158,10 +214,9 @@ static async Task ShowDriverSummariesAsync(DriverSummaryService service)
     Console.WriteLine("** Podiums valid at the checkered flag, Penalties may have affected race results and changed the official classification.");
 }
 
-static async Task SearchDriverSummaryAsync(DriverSummaryService service)
+static async Task SearchDriverSummaryAsync(DriverSummaryService service, string? searchTerm = null)
 {
-    Console.Write("Enter driver search term: ");
-    var searchTerm = Console.ReadLine();
+    searchTerm ??= PromptForDriverSearchTerm();
 
     if (string.IsNullOrWhiteSpace(searchTerm))
     {
@@ -190,4 +245,10 @@ static async Task SearchDriverSummaryAsync(DriverSummaryService service)
     Console.WriteLine();
     Console.WriteLine("* Within the available data");
     Console.WriteLine("** Podiums valid at the checkered flag, Penalties may have affected race results and changed the official classification.");
+}
+
+static string PromptForDriverSearchTerm()
+{
+    Console.Write("Enter driver search term: ");
+    return Console.ReadLine() ?? string.Empty;
 }

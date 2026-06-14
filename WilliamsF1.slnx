@@ -1,0 +1,23 @@
+<Solution>
+  <Folder Name="/data/">
+    <File Path="data/circuits.json" />
+    <File Path="data/drivers.json" />
+    <File Path="data/driver_standings.json" />
+    <File Path="data/lap_times.json" />
+    <File Path="data/races.json" />
+  </Folder>
+  <Folder Name="/docs/">
+    <File Path="assumptions.md" />
+    <File Path="justifications.md" />
+    <File Path="README.md" />
+  </Folder>
+  <Folder Name="/src/">
+    <Project Path="src/WilliamsF1.Application/WilliamsF1.Application.csproj" />
+    <Project Path="src/WilliamsF1.Cli/WilliamsF1.Cli.csproj" />
+    <Project Path="src/WilliamsF1.Domain/WilliamsF1.Domain.csproj" />
+    <Project Path="src/WilliamsF1.Infrastructure/WilliamsF1.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/WilliamsF1.Tests/WilliamsF1.Tests.csproj" />
+  </Folder>
+</Solution>

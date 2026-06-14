@@ -118,7 +118,7 @@ static async Task SearchCircuitSummaryAsync(CircuitSummaryService service)
 
     var summaries = await service.SearchCircuitSummariesAsync(searchTerm);
 
-    if (summaries is null)
+    if (summaries.Count <= 0)
     {
         Console.WriteLine("No matching circuit found.");
         return;

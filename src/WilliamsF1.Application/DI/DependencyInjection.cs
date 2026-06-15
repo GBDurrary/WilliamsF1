@@ -9,6 +9,7 @@ public static class DependencyInjection
     {
         services.AddSingleton<CircuitSummaryService>();
         services.AddSingleton<DriverSummaryService>();
+        services.AddSingleton<RaceSummaryService>();
 
         return services;
     }

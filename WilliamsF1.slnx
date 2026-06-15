@@ -7,7 +7,6 @@
     <File Path="data/races.json" />
   </Folder>
   <Folder Name="/docs/">
-    <File Path="assumptions.md" />
     <File Path="justifications.md" />
     <File Path="README.md" />
   </Folder>

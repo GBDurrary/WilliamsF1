@@ -1,6 +1,7 @@
 ﻿using System.Linq;
 using WilliamsF1.Application.DTO;
 using WilliamsF1.Application.Interface;
+using WilliamsF1.Domain.Models;
 
 namespace WilliamsF1.Application.Services;
 
@@ -88,11 +89,4 @@ public sealed class DriverSummaryService(
                 podiumsByDriverId.GetValueOrDefault(driver.DriverId)))
             .ToList();
     }
-
-    private sealed record FinalDriverLap(
-        int RaceId,
-        int DriverId,
-        int Lap,
-        int Position
-    );
 }

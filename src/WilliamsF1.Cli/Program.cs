@@ -18,14 +18,12 @@ builder.Services
 
 using var host = builder.Build();
 
-// Handle command-line arguments if provided
 if (args.Length > 0)
 {
     await HandleArgumentsAsync(host.Services, args);
 }
 else
 {
-    await DisplayStartupSummaryAsync(host.Services);
     await RunMenuAsync(host.Services);
 }
 
@@ -92,24 +90,6 @@ static async Task HandleArgumentsAsync(IServiceProvider services, string[] args)
             Console.WriteLine("  races <search-term> <year> - Search race summaries");
             break;
     }
-}
-
-static async Task DisplayStartupSummaryAsync(IServiceProvider services)
-{
-    var drivers = await services.GetRequiredService<IDriverRepository>().GetAllAsync();
-    var circuits = await services.GetRequiredService<ICircuitRepository>().GetAllAsync();
-    var races = await services.GetRequiredService<IRaceRepository>().GetAllAsync();
-    var standings = await services.GetRequiredService<IDriverStandingRepository>().GetAllAsync();
-
-    Console.Clear();
-    Console.WriteLine("Williams F1 Dataset Tool");
-    Console.WriteLine("========================");
-    Console.WriteLine();
-    Console.WriteLine($"Drivers loaded:          {drivers.Count}");
-    Console.WriteLine($"Circuits loaded:         {circuits.Count}");
-    Console.WriteLine($"Races loaded:            {races.Count}");
-    Console.WriteLine($"Driver standings loaded: {standings.Count}");
-    Console.WriteLine();
 }
 
 static async Task RunMenuAsync(IServiceProvider services)
@@ -269,7 +249,6 @@ static async Task SearchDriverSummaryAsync(DriverSummaryService service, string?
 
     foreach (var summary in summaries)
     {
-
         Console.WriteLine();
         Console.WriteLine(summary.DriverName);
         Console.WriteLine($"  Nationality:    {summary.Nationality}");
@@ -296,12 +275,6 @@ static async Task SearchRaceSummaryAsync(
     }
 
     year ??= PromptForRaceYear();
-
-    if (year is null)
-    {
-        Console.WriteLine("Race year must be a valid number.");
-        return;
-    }
 
     var summaries = await LoadingIndicator.RunAsync(
         "Searching race summaries...",

@@ -10,6 +10,7 @@ public sealed class RaceSummaryService(
     IDriverRepository driverRepository,
     ILapTimeRepository lapTimeRepository)
 {
+    private const int ClassifiedIfWithinLapsOfWinner = 3;
     private readonly SemaphoreSlim _lock = new(1, 1);
     private IReadOnlyList<RaceSummary>? _cachedSummaries;
 
@@ -112,8 +113,7 @@ public sealed class RaceSummaryService(
                 var raceResults = finalLaps
                     .Select(finalLap =>
                     {
-                        // Account for +2 lap classifications
-                        var completedRace = totalLaps > 0 && finalLap.Lap > totalLaps - 3;
+                        var completedRace = totalLaps > 0 && finalLap.Lap > totalLaps - ClassifiedIfWithinLapsOfWinner;
 
                         var driverName = driversById.TryGetValue(finalLap.DriverId, out var driver)
                             ? $"{driver.Forename} {driver.Surname}"
